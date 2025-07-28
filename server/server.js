@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import authRoutes from './routes/authRoutes.js';
 
 dotenv.config();
 const app= express();
@@ -12,6 +13,7 @@ app.use(express.json());
 app.get('/',(req,res)=>{
     res.send("Is this running?");
 });
+app.use('/user', authRoutes);
 
 const PORT= process.env.PORT || 3001;
 const MONGO_URI=process.env.MONGO_URI;
