@@ -1,7 +1,7 @@
 // idhar registration or sign ka logic hoga
 //how user registers and signs in 
 
-import User from '../models/user.js';
+import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
@@ -20,7 +20,7 @@ export const register= async(req,res)=>{
         const salt = await bcrypt.genSalt(10);
         const passHash = await bcrypt.hash(password, salt);
 
-        const newUser = new User({ name, email, passHash });
+        const newUser = new User({ name, email, password: passHash });
         await newUser.save();
 
         return res.status(201).json({message: "User registered successfully" });
@@ -37,13 +37,13 @@ export const login = async(req,res)=>{
             return res.status(400).json({message: "User not found "});
         }
 
-        const isMatch= await bcrypt.compare(password, user.passHash);
+        const isMatch= await bcrypt.compare(password, user.password);
         if(!isMatch){
             return res.status(400).json({message: "incorrect user name or password "});
         }
 
         const token= jwt.sign(
-            { userId: User.id},
+            { userId: user._id},
             process.env.JWT_SECRET,
             {expiresIn: '7d' }
         );
@@ -52,9 +52,9 @@ export const login = async(req,res)=>{
             message: "Login successful",
             token,
             user: {
-                id: User._id,
-                name: User.name,
-                email: User.email
+                id: user._id,
+                name: user.name,
+                email: user.email
             }
         });
     } catch (error) {
